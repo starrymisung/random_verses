@@ -19,28 +19,38 @@
   <script>
     async function loadVerses() {
       try {
-        const res = await fetch("verses.txt");
+        const res = await fetch("verses.txt", { cache: "no-cache" });
         const text = await res.text();
 
         // 줄 단위로 split & 공백 제거 & 빈 줄 제거
-        const lines = text.split("\n").map(v => v.trim()).filter(v => v);
+        const lines = text
+          .split("\n")
+          .map(v => v.trim())
+          .filter(v => v);
 
         // 랜덤 선택
         const line = lines[Math.floor(Math.random() * lines.length)];
 
-        // 구조: "절주소 본문내용"
-        // → 첫 공백을 기준으로 분리
-        const firstSpace = line.indexOf(" ");
-        const ref = line.substring(0, firstSpace);
-        const verseText = line.substring(firstSpace + 1);
+        // 기대 형식: "신명기 31:6 너희는 강하고 담대하라 ..."
+        const parts = line.split(/\s+/);
+        const book = parts[0];          // 신명기
+        const chapterVerse = parts[1];  // 31:6
+        const verseText = parts.slice(2).join(" "); // 나머지 본문
+
+        const ref = `${book} ${chapterVerse}`;
 
         document.getElementById("verse-text").textContent = verseText;
         document.getElementById("verse-ref").textContent = ref;
 
       } catch (err) {
         document.getElementById("verse-text").textContent = "말씀을 불러오지 못했습니다.";
+        document.getElementById("verse-ref").textContent = "";
       }
     }
+
+    loadVerses();
+  </script>
+
 
     loadVerses();
   </script>
